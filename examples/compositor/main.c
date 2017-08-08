@@ -19,6 +19,7 @@ struct sample_state {
 	struct wlr_renderer *renderer;
 	struct wl_compositor_state compositor;
 	struct wl_shell_state shell;
+	struct xdg_shell_state xdg_shell;
 };
 
 void handle_output_frame(struct output_state *output, struct timespec *ts) {
@@ -56,6 +57,7 @@ int main() {
 	wl_display_init_shm(compositor.display);
 	wl_compositor_init(compositor.display, &state.compositor, state.renderer);
 	wl_shell_init(compositor.display, &state.shell);
+	xdg_shell_init(compositor.display, &state.xdg_shell);
 
 	compositor_run(&compositor);
 }
