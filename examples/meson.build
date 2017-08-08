@@ -18,15 +18,22 @@ compositor_src = [
 
 wayland_scanner = find_program('wayland-scanner')
 wayland_protocols_pkgdatadir = dep_wayland_proto.get_pkgconfig_variable('pkgdatadir')
-xdg_shell_v6_xml = wayland_protocols_pkgdatadir + '/unstable/xdg-shell/xdg-shell-unstable-v6.xml'
-protocols_dir = meson.current_source_dir() + '/compositor/protocols'
 
-run_command(['mkdir', '-p', protocols_dir])
+protocols_src = meson.current_source_dir() + '/compositor/protocols'
+run_command(['mkdir', '-p', protocols_src])
 
-run_command([wayland_scanner, 'code', xdg_shell_v6_xml,
-	protocols_dir + '/xdg-shell.c'])
+protocols = [
+	['/unstable/xdg-shell/xdg-shell-unstable-v6.xml', 'xdg-shell']
+]
 
-run_command([wayland_scanner, 'server-header', xdg_shell_v6_xml,
-	protocols_dir + '/xdg-shell.h'])
+foreach p : protocols
+	xml = wayland_protocols_pkgdatadir + p[0]
+
+	run_command([wayland_scanner, 'code', xml,
+		protocols_src + '/' + p[1] + '.c'])
+
+	run_command([wayland_scanner, 'server-header', xml,
+		protocols_src + '/' + p[1] + '.h'])
+endforeach
 
 executable('compositor', compositor_src, dependencies: dep_wlr, link_with: lib_shared)
